@@ -6,10 +6,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 /**
- * Represents an oval ball
+ * Represents an rectangluar obstacle
  */
-public class Ball {
-    private double radius;
+public class Obstacle {
+    private double width, height;
     private Color color;
 
     // CHANGE: Add hitpoints to the ball
@@ -24,22 +24,28 @@ public class Ball {
 
 
     /**
-     * Creates a ball with a radius of one
+     * Creates an obstacle with a width of ten and height of five
      */
-    public Ball(){
-        this(1);
+    public Obstacle(){
+        this(10, 40);
     }
 
     /**
-     * Creates a ball with a custom radius (in pixels)
-     * @param radius the radius (in pixels) to set of the ball; Non-positives are reset to one
+     * Creates an obstacle with a custom width and height (in pixels)
+     * @param width the width (in pixels) to set of the obstacle; Non-positives are reset to ten
+     * @param height the height (in pixels) to set of the obstacle; Non-positives are reset to ten
      */
-    public Ball( double radius ){
-        color = Color.BLACK;
-        if( radius <= 0 ){
-            radius = 1;
+    public Obstacle( double width, double height ){
+        color = Color.PURPLE;
+        if( width <= 0 ){
+            width = 10;
         }
-        this.radius = radius;
+        if( height <= 0 ){
+            height = 10;
+        }
+
+        setWidth(width);
+        setHeight(height);
 
         boundX = new double[2];
         boundY = new double[2];
@@ -102,15 +108,15 @@ public class Ball {
 
 
     /**
-     * Set the radius of this object.  A ball's radius must be positive.
-     * @param radius the new, positive, radius of this object
-     * @return true if the radius is set, false if radius is not changed
+     * Set the width of this object.  An obstacles's width must be positive.
+     * @param w the new, positive, width of this object
+     * @return true if the width is set, false if width is not changed
      */
-    public boolean setRadius(double radius){
+    public boolean setWidth(double w){
         boolean rtn = false;
 
-        if( radius > 0 ) {
-            this.radius = radius;
+        if( w > 0 ) {
+            this.width = w;
             rtn = true;
         }
 
@@ -118,12 +124,33 @@ public class Ball {
     }
 
     /**
-     * Get the current radius of this object
-     * @return a positive radius
+     * Set the height of this object.  An obstacles's height must be positive.
+     * @param h the new, positive, height of this object
+     * @return true if the height is set, false if height is not changed
      */
-    public double getRadius(){
-        return this.radius;
+    public boolean setHeight(double h){
+        boolean rtn = false;
+
+        if( h > 0 ) {
+            this.height = h;
+            rtn = true;
+        }
+
+        return rtn;
     }
+
+    /**
+     * Get the current width of this object
+     * @return a positive width
+     */
+    public double getWidth() { return this.width; }
+
+    /**
+     * Get the current height of this object
+     * @return a positive height
+     */
+    public double getHeight(){ return this.height;}
+
 
     /**
      * Sets the color of the ball
@@ -145,7 +172,7 @@ public class Ball {
      * @return the current color of the ball
      */
     public Color getColor(){
-         return this.color;
+        return this.color;
     }
 
     // CHANGE: Added mutator and accessor for hitpoints
@@ -220,29 +247,45 @@ public class Ball {
     }
 
     /**
-     * Check to see if two balls overlap each other
-     * @param other the other ball
+     * Check to see if the obstacle overlaps with a ball (circular)
+     * @param other the ball to check intersection with
      * @return true is this object intersects with other, false otherwise
      */
     public boolean intersects(Ball other){
-        double xd = (other.x-this.x);
-        xd *= xd;
+        Obstacle o = new Obstacle(other.getRadius()*2, other.getRadius()*2);
+        o.x = other.x - other.getRadius();
+        o.y = other.y - other.getRadius();
 
-        double yd = (other.y-this.y);
-        yd *= yd;
-
-        double rad = (other.radius+this.radius);
-        rad *= rad;                  // (r1 + r2)^2
-
-        double distance = xd + yd;  // x^2+y^2
-        return (distance < rad);
+        return this.intersects(o);
     }
+
+    /**
+     * Check to see if the obstacle overlaps with another obstacle
+     * @param other the second obstacle to check intersection with
+     * @return true if this objects intersect, false otherwise
+     */
+    public boolean intersects(Obstacle other){
+        if( this.x + this.getWidth() < other.x ){
+            return false;
+        }
+        if( this.x > other.x + other.getWidth()){
+            return false;
+        }
+        if( this.y + this.getHeight() < other.y ){
+            return false;
+        }
+        if( this.y > other.y + other.getHeight()){
+            return false;
+        }
+
+        return true;
+    }
+
 
     public void render( Canvas canvas ){
         GraphicsContext gc = canvas.getGraphicsContext2D();
-
         gc.setFill(this.color);
-        gc.fillOval(x-radius,y-radius, 2*radius, 2*radius);
+        gc.fillRect(x, y, width, height);
 
     }
 }

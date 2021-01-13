@@ -17,7 +17,7 @@ public class Main extends Application {
         Scene scene = new Scene(root, 500,500);
         primaryStage.setScene(scene);
 
-        // Forward ket events to the Game
+        // Forward key events to the Game
         scene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
