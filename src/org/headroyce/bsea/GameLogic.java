@@ -53,8 +53,7 @@ public class GameLogic {
 
 
     // Enemy Elements
-    private ArrayList<Ball> enemies;
-    private ArrayList<Obstacle> obstacles;
+    private ArrayList<Mob> enemies;
 
     // Width and height of the canvas
     private double width, height;
@@ -69,7 +68,6 @@ public class GameLogic {
 
         player = new Ball();
         enemies = new ArrayList<>();
-        obstacles = new ArrayList<>();
 
         forcesOnPlayer = new HashMap<>();
 
@@ -90,25 +88,14 @@ public class GameLogic {
 
         player.render(canvas);
         for( int i = 0; i < enemies.size(); i++ ){
-            Ball enemy = enemies.get(i);
-
-            int min = (int)enemy.getRadius();
-            if( enemy.x < 0 ){
-                int maxW = (int)(width-min+1);
-                enemy.x = rand.nextInt(maxW-min+1)+min;
-            }
-
-            enemy.render(canvas);
-        }
-
-        for( int i = 0; i < obstacles.size(); i++ ){
-            Obstacle enemy = obstacles.get(i);
+            Mob enemy = enemies.get(i);
 
             int min = (int)enemy.getWidth();
             if( enemy.x < 0 ){
                 int maxW = (int)(width-min+1);
                 enemy.x = rand.nextInt(maxW-min+1)+min;
             }
+
             enemy.render(canvas);
         }
 
@@ -150,41 +137,40 @@ public class GameLogic {
         playerScore = 0;
 
         enemies.clear();
-        obstacles.clear();
     }
 
     public boolean isGameOver(){
         return gameOver;
     }
 
-    private boolean collideWalls(Ball player){
+    private boolean collideWalls(Mob player){
 
         boolean collided = false;
 
         // Keep player with the window
 
         if( player == this.player ) {
-            if (player.y + player.getRadius() > height) {
-                player.y = height - player.getRadius();
+            if (player.y + player.getHeight() > height) {
+                player.y = height - player.getHeight();
                 player.bounceY();
                 collided = true;
             }
 
-            if (player.y - player.getRadius() < 0) {
-                player.y = player.getRadius();
+            if (player.y - player.getHeight() < 0) {
+                player.y = player.getHeight();
                 player.bounceY();
                 collided = true;
             }
         }
 
 
-        if( player.x + player.getRadius() > width ){
-            player.x = width - player.getRadius();
+        if( player.x + player.getWidth() > width ){
+            player.x = width - player.getWidth();
             player.bounceX();
             collided = true;
         }
-        if( player.x - player.getRadius() < 0 ){
-            player.x = player.getRadius();
+        if( player.x - player.getWidth() < 0 ){
+            player.x = player.getWidth();
             player.bounceX();
             collided = true;
         }
@@ -284,7 +270,7 @@ public class GameLogic {
                         enemy.setVelocityBoundY(-5,5);
 
                         enemy.velY = 10;
-                        obstacles.add(enemy);
+                        enemies.add(enemy);
                     }
 
                 }
@@ -316,31 +302,30 @@ public class GameLogic {
                 // MOVE EVERYTHING
                 player.move();
                 for( int i = 0; i < enemies.size(); i++ ){
-                    Ball enemy = enemies.get(i);
+                    Mob enemy = enemies.get(i);
 
-                    if( rand.nextInt(100) < ENEMY_DIRECTION_PROBABILITY &&
-                        enemy.getColor() == Color.RED
-                    ){
-                        double changeX = Math.signum(player.x - enemy.x);
-                        double changeY = Math.signum(player.y - enemy.y);
+                    if( enemy instanceof Ball) {
+                        if (rand.nextInt(100) < ENEMY_DIRECTION_PROBABILITY &&
+                                enemy.getColor() == Color.RED
+                        ) {
+                            double changeX = Math.signum(player.x - enemy.x);
+                            double changeY = Math.signum(player.y - enemy.y);
 
-                        enemy.velX = changeX * Math.abs(enemy.velX);
-                        enemy.velY = changeY * Math.abs(enemy.velY);
+                            enemy.velX = changeX * Math.abs(enemy.velX);
+                            enemy.velY = changeY * Math.abs(enemy.velY);
+                        }
                     }
 
                     enemy.move();
                 }
-                for( int i = 0; i < obstacles.size(); i++ ){
-                    Obstacle enemy = obstacles.get(i);
-                    enemy.move();
-                }
+
 
 
 
                 // CHECK WALLS ON EVERYTHING
                 boolean playerCollided = collideWalls(player);
                 for( int i = 0; i < enemies.size(); i++ ){
-                    Ball enemy = enemies.get(i);
+                    Mob enemy = enemies.get(i);
                     collideWalls(enemy);
 
                     if( enemy.y > height ){
@@ -348,23 +333,17 @@ public class GameLogic {
                         i--;
                     }
                 }
-                // Remove obstacles if they go past the end of the window
-                for( int i = 0; i < obstacles.size(); i++ ) {
-                    Obstacle enemy = obstacles.get(i);
-                    if( enemy.y > height ){
-                        obstacles.remove(enemy);
-                        i--;
-                    }
-                }
 
                 // CHECK BALL COLLISIONS ON EVERYTHING
                 for( int i = 0; i < enemies.size(); i++ ) {
-                    Ball enemy = enemies.get(i);
+                    Mob enemy = enemies.get(i);
                     for( int j = i + 1; j < enemies.size(); j++ ) {
-                        if(collideBalls(enemy, enemies.get(j)) ){
-                            enemies.remove(j);
-                            enemies.remove(enemy);
-                            j -= 2;
+                        if( enemy instanceof Ball && enemies.get(j) instanceof Ball ) {
+                            if (collideBalls((Ball)enemy, (Ball)enemies.get(j))) {
+                                enemies.remove(j);
+                                enemies.remove(enemy);
+                                j -= 2;
+                            }
                         }
                     }
 
