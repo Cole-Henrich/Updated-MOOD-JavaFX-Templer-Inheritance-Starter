@@ -28,7 +28,6 @@ public class GameLogic {
     public static final int GAME_STEP_TIMER = 17;
     private GameTimer gameTimer;
 
-    // CHANGE: Added ability to detect that the game is over
     private boolean gameOver;
 
     private Random rand;
@@ -37,18 +36,15 @@ public class GameLogic {
     private Ball player;
     private HashMap<DIRECTION, Boolean> forcesOnPlayer;
 
-    // CHANGE: Controls Player flash on collision
     private static final int PLAYER_FLASH_TIME = 500;
     private int flashTimer = 0;
 
-    // CHANGE: Add scoring
     private static final int PLAYER_SCORING_TIME = 5000;
     private int PLAYER_SCORING_TIMER = 5000;
 
     private static final int PLAYER_SCORING_POINTS = 2;
     private int playerScore = 0;
 
-    // CHANGE: Add enemy spawn
     private static final int ENEMY_SPAWN_TIME = 150;
     private static final int ENEMY_DIRECTION_PROBABILITY = 5;
     private static final int ENEMY_SPAWN_PROBABILITY = 5;
@@ -77,8 +73,6 @@ public class GameLogic {
 
         forcesOnPlayer = new HashMap<>();
 
-
-        // CHANGE: Use the reset method
         reset();
     }
 
@@ -104,7 +98,6 @@ public class GameLogic {
                 enemy.x = rand.nextInt(maxW-min+1)+min;
             }
 
-            // CHANGE: Remove randomization of y
             enemy.render(canvas);
         }
 
@@ -116,12 +109,9 @@ public class GameLogic {
                 int maxW = (int)(width-min+1);
                 enemy.x = rand.nextInt(maxW-min+1)+min;
             }
-            // CHANGE: Remove randomization of y
             enemy.render(canvas);
         }
 
-
-        // CHANGE Add Score and Lives Text
         // Draw lives and score last so that the balls go under them
         Text lives = new Text("Lives: " + Math.round(player.getHP()));
 
@@ -142,19 +132,16 @@ public class GameLogic {
         }
     }
 
-    // CHANGE: Add Reset Ability
     public void reset(){
         player.x = 200;
         player.y = 400;
         player.setRadius(10);
 
-        // CHANGE: Remove player start speed
         player.velX = player.velY = 0;
         player.setVelocityBoundX(-7, 7);
         player.setVelocityBoundY(-7,7);
 
 
-        // CHANGE: Add three lives to the player
         player.addHP(3);
         enemies.clear();
         forcesOnPlayer.clear();
@@ -170,14 +157,12 @@ public class GameLogic {
         return gameOver;
     }
 
-    // CHANGE: Return type to boolean (true if collision)
     private boolean collideWalls(Ball player){
 
         boolean collided = false;
 
         // Keep player with the window
 
-        // CHANGE: Only applies to the player
         if( player == this.player ) {
             if (player.y + player.getRadius() > height) {
                 player.y = height - player.getRadius();
@@ -211,7 +196,6 @@ public class GameLogic {
         forcesOnPlayer.put(direction, true);
     }
 
-    // CHANGE: Added ability to remove a force
     public void removeForce(DIRECTION direction){
         forcesOnPlayer.remove(direction);
     }
@@ -222,7 +206,6 @@ public class GameLogic {
      * @param ball2 second ball to check colliion with
      * @return true if ball1 and ball2 collided, false otherwise
      */
-    // CHANGE: return type to boolean
     private boolean collideBalls( Ball ball1, Ball ball2 ){
         // inelastic collision
         // Swap velocities on collision
@@ -257,26 +240,22 @@ public class GameLogic {
 
         @Override
 
-        // CHANGE: Added player flashing
         public void handle(long now) {
 
             // Covert the time_elapsed from nanoseconds to milliseconds
             long time_elapsed = (now - lastUpdate)/1000000;
 
-            // CHANGE: Control flash timer
             flashTimer -= time_elapsed;
             if( flashTimer < 0 ){
                 player.setColor(Color.BLACK);
             }
 
-            // CHANGE: Control scoring timer
             PLAYER_SCORING_TIMER -= time_elapsed;
             if( PLAYER_SCORING_TIMER < 0 ){
                 PLAYER_SCORING_TIMER = PLAYER_SCORING_TIME;
                 playerScore += PLAYER_SCORING_POINTS;
             }
 
-            // CHANGE: Control Enemy Spawning
             ENEMY_SPAWN_TIMER -= time_elapsed;
             if( ENEMY_SPAWN_TIMER < 0 ){
                 int chance = rand.nextInt(100);
@@ -292,7 +271,7 @@ public class GameLogic {
                         enemy.setVelocityBoundY(-5,5);
 
                         enemy.setColor(Color.RED);
-                        // CHANGE: Always go down
+
                         enemy.velX = rand.nextInt(5) + 2;
                         enemy.velY = rand.nextInt(5) + 2;
                         enemies.add(enemy);
@@ -339,7 +318,6 @@ public class GameLogic {
                 for( int i = 0; i < enemies.size(); i++ ){
                     Ball enemy = enemies.get(i);
 
-                    // CHANGE: Redirect Enemies with probability
                     if( rand.nextInt(100) < ENEMY_DIRECTION_PROBABILITY &&
                         enemy.getColor() == Color.RED
                     ){
@@ -365,7 +343,6 @@ public class GameLogic {
                     Ball enemy = enemies.get(i);
                     collideWalls(enemy);
 
-                    // CHANGE: Remove the enemy if it goes off the screen
                     if( enemy.y > height ){
                         enemies.remove(enemy);
                         i--;
@@ -418,7 +395,6 @@ public class GameLogic {
                 }
 
 
-                // CHANGE: Handle player collision
                 if( playerCollided ){
                     // Stops lives being lost if green
                     if( flashTimer <= 0 ){

@@ -12,7 +12,6 @@ public class Ball {
     private double radius;
     private Color color;
 
-    // CHANGE: Add hitpoints to the ball
     private double hp;
 
     public double x, y;         // Center point of the circle
@@ -148,7 +147,6 @@ public class Ball {
          return this.color;
     }
 
-    // CHANGE: Added mutator and accessor for hitpoints
     /**
      * Get the current hit point value of the ball
      * @return a non-negative value representing the hit points of the ball

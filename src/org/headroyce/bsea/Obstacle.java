@@ -11,8 +11,6 @@ import javafx.scene.paint.Color;
 public class Obstacle {
     private double width, height;
     private Color color;
-
-    // CHANGE: Add hitpoints to the ball
     private double hp;
 
     public double x, y;         // Center point of the circle
@@ -175,7 +173,6 @@ public class Obstacle {
         return this.color;
     }
 
-    // CHANGE: Added mutator and accessor for hitpoints
     /**
      * Get the current hit point value of the ball
      * @return a non-negative value representing the hit points of the ball
