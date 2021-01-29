@@ -281,30 +281,30 @@ public class GameLogic {
             if( time_elapsed > GameLogic.GAME_STEP_TIMER) {
                 // Game steps go here
 
-                if( forcesOnPlayer.containsKey(DIRECTION.LEFT) ){
+                if (forcesOnPlayer.containsKey(DIRECTION.LEFT)) {
                     player.velX--;
                 }
-                if( forcesOnPlayer.containsKey(DIRECTION.RIGHT) ){
+                if (forcesOnPlayer.containsKey(DIRECTION.RIGHT)) {
                     player.velX++;
                 }
-                if( forcesOnPlayer.containsKey(DIRECTION.UP) ){
+                if (forcesOnPlayer.containsKey(DIRECTION.UP)) {
                     player.velY--;
                 }
-                if( forcesOnPlayer.containsKey(DIRECTION.DOWN) ){
+                if (forcesOnPlayer.containsKey(DIRECTION.DOWN)) {
                     player.velY++;
                 }
 
-                if( forcesOnPlayer.containsKey(DIRECTION.STOP) ){
+                if (forcesOnPlayer.containsKey(DIRECTION.STOP)) {
                     player.velX -= Math.signum(player.velX);
                     player.velY -= Math.signum(player.velY);
                 }
 
                 // MOVE EVERYTHING
                 player.move();
-                for( int i = 0; i < enemies.size(); i++ ){
+                for (int i = 0; i < enemies.size(); i++) {
                     Mob enemy = enemies.get(i);
 
-                    if( enemy instanceof Ball) {
+                    if (enemy instanceof Ball) {
                         if (rand.nextInt(100) < ENEMY_DIRECTION_PROBABILITY &&
                                 enemy.getColor() == Color.RED
                         ) {
@@ -320,59 +320,41 @@ public class GameLogic {
                 }
 
 
-
-
                 // CHECK WALLS ON EVERYTHING
                 boolean playerCollided = collideWalls(player);
-                for( int i = 0; i < enemies.size(); i++ ){
+                for (int i = 0; i < enemies.size(); i++) {
                     Mob enemy = enemies.get(i);
                     collideWalls(enemy);
 
-                    if( enemy.y > height ){
+                    if (enemy.y > height) {
                         enemies.remove(enemy);
                         i--;
                     }
                 }
 
                 // CHECK BALL COLLISIONS ON EVERYTHING
-                for( int i = 0; i < enemies.size(); i++ ) {
+                for (int i = 0; i < enemies.size(); i++) {
                     Mob enemy = enemies.get(i);
-                    for( int j = i + 1; j < enemies.size(); j++ ) {
-                        if( enemy instanceof Ball && enemies.get(j) instanceof Ball ) {
-                            if (collideBalls((Ball)enemy, (Ball)enemies.get(j))) {
+                    for (int j = i + 1; j < enemies.size(); j++) {
+                        if (enemy instanceof Ball && enemies.get(j) instanceof Ball) {
+                            if (collideBalls((Ball) enemy, (Ball) enemies.get(j))) {
                                 enemies.remove(j);
                                 enemies.remove(enemy);
                                 j -= 2;
                             }
                         }
                     }
+                    boolean enemyRemove;
+                    if (enemy instanceof Ball) {
+                    enemyRemove = collideBalls(player, (Ball) enemy);
 
-                    // Obstacle-enemy collision -- only removes enemies
-                   for( int j = 0; j < obstacles.size(); j++ ) {
-                        if( obstacles.get(j).intersects(enemy) ){
-                            enemies.remove(enemy);
-                            i--;
-                        }
-                    }
-
-
-                    boolean enemyRemove = collideBalls(player, enemy);
-                    if( enemyRemove ){
+                    if (enemyRemove) {
                         enemies.remove(enemy);
                         i--;
                     }
-                    playerCollided =  enemyRemove || playerCollided;
+                    playerCollided = enemyRemove || playerCollided;
                 }
-                // Check player with the obstacles
-                for( int i = 0; i < obstacles.size(); i++ ) {
-                    Obstacle o = obstacles.get(i);
-                    if( o.intersects(player)){
-                        playerCollided = true;
-                        obstacles.remove(o);
-                        i--;
-                    }
-                }
-
+            }
 
                 if( playerCollided ){
                     // Stops lives being lost if green
